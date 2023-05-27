@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH[0, 0] = File.join(File.dirname(__FILE__), '..', 'lib')
+
+require 'linguist'
+require 'json'
+require 'pathname'
+
+
+def smc_linguist()
+  breakdown = false
+  json_output = false
+  rev = 'HEAD'
+  path = Dir.pwd
+
+  path = "Gemfile"
+
+  while true
+    # read stdin
+    path = STDIN.gets
+    if path.nil?
+      break
+    end
+    path = path.chomp
+
+    if File.file?(path)
+      begin
+        # Check if this file is inside a git repository so we have things like
+        # `.gitattributes` applied.
+        file_full_path = File.realpath(path)
+        rugged = Rugged::Repository.discover(file_full_path)
+        file_rel_path = file_full_path.sub(rugged.workdir, '')
+        oid = -> { rugged.head.target.tree.walk_blobs { |r, b| return b[:oid] if r + b[:name] == file_rel_path } }
+        blob = Linguist::LazyBlob.new(rugged, oid.call, file_rel_path)
+      rescue Rugged::RepositoryError
+        blob = Linguist::FileBlob.new(path, Dir.pwd)
+      end
+
+      type = if blob.text?
+        'Text'
+      elsif blob.image?
+        'Image'
+      else
+        'Binary'
+      end
+
+      puts JSON.generate( { path => {
+        :lines => blob.loc,
+        :sloc => blob.sloc,
+        :type => type,
+        :mime_type => blob.mime_type,
+        :language => blob.language,
+        :large => blob.large?,
+        :generated => blob.generated?,
+        :vendored => blob.vendored?,
+      } } )
+    else
+      puts JSON.generate( { path => {
+        "error" => "file not found"
+      } } )
+    end
+  end
+end
+
+smc_linguist()
