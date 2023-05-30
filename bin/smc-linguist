@@ -24,6 +24,7 @@ def smc_linguist()
     path = path.chomp
 
     if File.file?(path)
+      # STDERR.puts "Processing: #{path}"
       begin
         # Check if this file is inside a git repository so we have things like
         # `.gitattributes` applied.
@@ -44,7 +45,8 @@ def smc_linguist()
         'Binary'
       end
 
-      puts JSON.generate( { path => {
+      puts JSON.generate( {
+        :path => path,
         :lines => blob.loc,
         :sloc => blob.sloc,
         :type => type,
@@ -53,12 +55,16 @@ def smc_linguist()
         :large => blob.large?,
         :generated => blob.generated?,
         :vendored => blob.vendored?,
-      } } )
+      } )
     else
-      puts JSON.generate( { path => {
-        "error" => "file not found"
-      } } )
+      # STDERR.puts "File not found: #{path}"
+      puts JSON.generate( {
+        :path => path,
+        "error" => "file not found: #{path}",
+      } )
     end
+    # STDERR.puts "/done"
+    STDOUT.flush
   end
 end
 
