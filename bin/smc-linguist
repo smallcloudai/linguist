@@ -16,7 +16,6 @@ def smc_linguist()
   path = "Gemfile"
 
   while true
-    # read stdin
     path = STDIN.gets
     if path.nil?
       break
@@ -24,7 +23,6 @@ def smc_linguist()
     path = path.chomp
 
     if File.file?(path)
-      # STDERR.puts "Processing: #{path}"
       begin
         # Check if this file is inside a git repository so we have things like
         # `.gitattributes` applied.
@@ -32,6 +30,9 @@ def smc_linguist()
         rugged = Rugged::Repository.discover(file_full_path)
         file_rel_path = file_full_path.sub(rugged.workdir, '')
         oid = -> { rugged.head.target.tree.walk_blobs { |r, b| return b[:oid] if r + b[:name] == file_rel_path } }
+        if oid.call.nil?
+          raise Rugged::RepositoryError
+        end
         blob = Linguist::LazyBlob.new(rugged, oid.call, file_rel_path)
       rescue Rugged::RepositoryError
         blob = Linguist::FileBlob.new(path, Dir.pwd)
@@ -57,13 +58,11 @@ def smc_linguist()
         :vendored => blob.vendored?,
       } )
     else
-      # STDERR.puts "File not found: #{path}"
       puts JSON.generate( {
         :path => path,
         "error" => "file not found: #{path}",
       } )
     end
-    # STDERR.puts "/done"
     STDOUT.flush
   end
 end
