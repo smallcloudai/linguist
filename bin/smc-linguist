@@ -56,6 +56,7 @@ def smc_linguist()
         :large => blob.large?,
         :generated => blob.generated?,
         :vendored => blob.vendored?,
+        :digits_percent => blob.digits_percent?,
       } )
     else
       puts JSON.generate( {

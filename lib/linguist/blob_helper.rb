@@ -368,6 +368,20 @@ module Linguist
       @language ||= Linguist.detect(self)
     end
 
+    # Public: Detects percent of digits in the blob.
+    #
+    # Loads Blob#data
+    #
+    # Returns percent of digits or nill if blob is not a text file
+    def digits_percent?
+      if text?
+        text_no_whitespace = data.delete(" \t\n\r")
+        text_no_whitespace.count('0123456789').to_f / [1, text_no_whitespace.length].max
+      else
+        nil
+      end
+    end
+
     # Internal: Get the TextMate compatible scope for the blob
     def tm_scope
       language && language.tm_scope
