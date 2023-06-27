@@ -183,13 +183,13 @@ module Linguist
       extname.downcase == '.pdf'
     end
 
-    MEGABYTE = 1024 * 1024
+    LARGE_FILE_SIZE_MIN = 512 * 1024
 
     # Public: Is the blob too big to load?
     #
     # Return true or false
     def large?
-      size.to_i > MEGABYTE
+      size.to_i > LARGE_FILE_SIZE_MIN
     end
 
     # Public: Is the blob safe to colorize?
