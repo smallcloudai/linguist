@@ -374,7 +374,7 @@ module Linguist
     #
     # Returns percent of digits or nill if blob is not a text file
     def digits_percent?
-      if text?
+      if text? && !large?
         text_no_whitespace = data.delete(" \t\n\r")
         text_no_whitespace.count('0123456789').to_f / [1, text_no_whitespace.length].max
       else
