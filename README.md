@@ -12,7 +12,7 @@ It is used in Refact self hosting server to preprocess source code files, as a p
 Linguist is written in Ruby. Ruby is a lightweight language that will not mess up our computer much. On Ubuntu:
 
 ```
-sudo apt-get install -y build-essential cmake pkg-config ruby-full ruby-bundler
+sudo apt-get install -y ruby-full ruby-bundler build-essential cmake pkg-config libicu-dev zlib1g-dev libcurl4-openssl-dev libkrb5-dev libssl-dev
 ```
 
 Installation:
